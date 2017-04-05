@@ -1,10 +1,9 @@
 FROM mongo:3.2
 
 ADD f8app.archive /f8db/f8app.archive
+ADD f8app_restore /f8db/f8app_restore
 
-RUN mongod --fork --logpath /dev/null --pidfilepath /mongod.pid && \
-  mongorestore -vvvv --archive=/f8db/f8app.archive --drop && \
-# kill the proc, and then wait for kill -0 to return a non-zero exit code.
-  kill -INT `cat /mongod.pid` && while kill -0 `cat /mongod.pid`; do sleep .10; done && \
-  echo 'looking for mongod to still be running?' && \
-  ps -ax
+RUN /f8db/f8app_restore
+
+CMD [ "mongod", "--dbpath", "/data/f8db" ]
+

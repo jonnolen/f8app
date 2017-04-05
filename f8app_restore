@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+function finish {
+  mongod --shutdown --dbpath /data/f8db
+  rm /data/f8db/mongod.lock
+}
+
+trap "finish $1" EXIT
+
+mkdir -p /data/f8db
+chown -R mongodb:mongodb /data/f8db
+
+gosu mongodb mongod --fork --logpath /dev/null --dbpath /data/f8db
+
+mongorestore -vvvv --archive=/f8db/f8app.archive --drop --writeConcern="{w: 1, j: true}"
